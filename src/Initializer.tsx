@@ -8,8 +8,8 @@ function Initializer() {
       <h1>Initializer</h1>
       <button
         onClick={() => {
-          send({ type: "INITIALIZE.AUDIO" });
-          console.log("state", state);
+          console.log("state.context", state.context);
+          console.log("state", state.value);
         }}
       >
         Initialize
