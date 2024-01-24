@@ -2,12 +2,16 @@ import { MachineContext } from "./machine";
 
 function Initializer() {
   const { send } = MachineContext.useActorRef();
-  const context = MachineContext.useSelector((state) => state.context);
-  console.log("context", context);
+  const state = MachineContext.useSelector((state) => state);
   return (
     <div>
       <h1>Initializer</h1>
-      <button onClick={() => send({ type: context.clicked })}>
+      <button
+        onClick={() => {
+          send({ type: "next" });
+          console.log("state", state);
+        }}
+      >
         Initialize
       </button>
     </div>

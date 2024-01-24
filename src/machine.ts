@@ -1,4 +1,4 @@
-import { createMachine } from "xstate";
+import { createMachine, fromCallback } from "xstate";
 import { createActorContext } from "@xstate/react";
 
 export const machine = createMachine(
@@ -6,29 +6,37 @@ export const machine = createMachine(
     context: {
       clicked: false,
     },
-    initial: "First State",
+    initial: "unavailable",
     states: {
-      uninitialized: {
-        on: {
-          INITIALIZE: {
-            target: "initialized",
-            actions: {
-              type: "setInitialized",
-            },
-          },
-        },
-      },
-      initialized: {
+      unavailable: {
         invoke: {
           src: "INITIALIZER",
         },
+        on: {
+          "INITIALIZE.AUDIO": {
+            target: "available",
+          },
+        },
+      },
+      available: {
+        type: "final",
       },
     },
-    types: { events: {} as { type: "INITIALIZE" } },
+    types: { events: {} as { type: "INITIALIZE.AUDIO" } },
   },
   {
     actions: {},
-    actors: {},
+    actors: {
+      INITIALIZER: fromCallback(({ sendBack }) => {
+        function handler() {
+          sendBack({ type: "INITIALIZE.AUDIO" });
+        }
+        document.body.addEventListener("click", handler);
+        return () => {
+          document.body.removeEventListener("click", handler);
+        };
+      }),
+    },
     guards: {},
     delays: {},
   }
