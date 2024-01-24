@@ -1,10 +1,14 @@
-import { createMachine, fromCallback } from "xstate";
+import { assign, createMachine, fromCallback } from "xstate";
 import { createActorContext } from "@xstate/react";
+
+type Context = {
+  audioContext: AudioContext | undefined;
+};
 
 export const machine = createMachine(
   {
     context: {
-      clicked: false,
+      audioContext: undefined,
     },
     initial: "unavailable",
     states: {
@@ -15,6 +19,9 @@ export const machine = createMachine(
         on: {
           "INITIALIZE.AUDIO": {
             target: "available",
+            actions: {
+              type: "setAudioContext",
+            },
           },
         },
       },
@@ -22,14 +29,22 @@ export const machine = createMachine(
         type: "final",
       },
     },
-    types: { events: {} as { type: "INITIALIZE.AUDIO" } },
+    types: {
+      context: {} as Context,
+      events: {} as { type: "INITIALIZE.AUDIO" },
+    },
   },
   {
-    actions: {},
+    actions: {
+      setAudioContext: assign(() => ({
+        audioContext: new AudioContext(),
+      })),
+    },
     actors: {
       INITIALIZER: fromCallback(({ sendBack }) => {
         function handler() {
-          sendBack({ type: "INITIALIZE.AUDIO" });
+          const audioContext = new AudioContext();
+          sendBack({ type: "INITIALIZE.AUDIO", audioContext });
         }
         document.body.addEventListener("click", handler);
         return () => {
