@@ -1,10 +1,10 @@
-import Initializer from "./Initializer";
+import Loader from "./Loader";
 import { MachineContext } from "./machine";
 
 function App() {
   return (
     <MachineContext.Provider>
-      <Initializer />
+      <Loader />
     </MachineContext.Provider>
   );
 }
