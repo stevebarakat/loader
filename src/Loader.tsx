@@ -1,18 +1,19 @@
 import { MachineContext } from "./machine";
+import { californiaUberAlles } from "./california-uber-alles";
+
+const SOURCE_SONG = californiaUberAlles;
+
+// console.log("SOURCE_SONG", SOURCE_SONG);
 
 function Loader() {
   const { send } = MachineContext.useActorRef();
-  const state = MachineContext.useSelector((state) => state);
 
-  console.log("state", state.value);
   return (
     <div>
       <h1>Loader</h1>
       <button
         onClick={() => {
-          send({ type: "LOAD.SONG", url: "/dk/drums.ogg" });
-          console.log("state.context", state.context);
-          console.log("state", state.value);
+          send({ type: "LOAD.SONG", sourceSong: SOURCE_SONG });
         }}
       >
         Load
