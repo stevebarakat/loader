@@ -44,7 +44,10 @@ export const machine = createMachine(
       loading: {
         invoke: {
           src: "LOADER",
-          input: { sourceSong: californiaUberAlles },
+          input: ({ context }) => {
+            console.log("context", context);
+            return context;
+          },
           onDone: {
             target: "idle",
             actions: ({ event }) => console.log("snapshot", event),
