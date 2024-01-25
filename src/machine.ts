@@ -69,25 +69,39 @@ export const machine = createMachine(
     actors: {
       LOADER: fromPromise(async ({ input }) => {
         const actx = new AudioContext();
-        const file = californiaUberAlles.tracks[0].file;
-        console.log("file", file);
-        async function decodeAudio(file: string) {
+        let audioBuffers: (AudioBuffer | undefined)[] = [];
+        async function decodeAudio(path: string) {
+          console.log("path", path);
           try {
-            const response = await fetch("/california-uber-alles/01.kick.ogg");
-            return actx.decodeAudioData(await response.arrayBuffer());
+            const response = await fetch(`california-uber-alles/${path}`);
+            return actx?.decodeAudioData(await response.arrayBuffer());
           } catch (err) {
             if (err instanceof Error) {
               console.error(
-                `Error: ${err.message} the audio file at: ${file} `
+                `Error: ${err.message} for file at: ${`/${path}`} `
               );
             }
           }
         }
-        try {
-          return await decodeAudio(file);
-        } catch (error) {
-          console.error("error", error);
+        async function createAudioBuffers(tracks: SourceTrack[]) {
+          for (const track of tracks) {
+            console.log("track.file", `/${track.file}`);
+            try {
+              const buffer: AudioBuffer | undefined = await decodeAudio(
+                track.file
+              );
+              audioBuffers = [buffer, ...audioBuffers];
+            } catch (err) {
+              if (err instanceof Error)
+                console.error(
+                  `Error: ${err.message} for file at: ${track.file} `
+                );
+            }
+          }
+          return audioBuffers;
         }
+        console.log("input", input.sourceSong.tracks);
+        createAudioBuffers(input.sourceSong.tracks);
       }),
     },
     guards: {},
