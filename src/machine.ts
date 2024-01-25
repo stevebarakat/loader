@@ -1,6 +1,5 @@
 import { assign, createMachine, fromPromise } from "xstate";
 import { createActorContext } from "@xstate/react";
-import { californiaUberAlles } from "./california-uber-alles";
 
 type SourceSong = {
   id: string;
@@ -53,6 +52,7 @@ export const machine = createMachine(
       },
     },
     types: {
+      input: {} as SourceSong,
       context: {} as Context,
       events: {} as {
         type: "LOAD.SONG";
@@ -70,22 +70,14 @@ export const machine = createMachine(
       LOADER: fromPromise(async ({ input }) => {
         const actx = new AudioContext();
         let audioBuffers: (AudioBuffer | undefined)[] = [];
+
         async function decodeAudio(path: string) {
           console.log("path", path);
-          try {
-            const response = await fetch(`california-uber-alles/${path}`);
-            return actx?.decodeAudioData(await response.arrayBuffer());
-          } catch (err) {
-            if (err instanceof Error) {
-              console.error(
-                `Error: ${err.message} for file at: ${`/${path}`} `
-              );
-            }
-          }
+          const response = await fetch(`california-uber-alles/${path}`);
+          return actx?.decodeAudioData(await response.arrayBuffer());
         }
         async function createAudioBuffers(tracks: SourceTrack[]) {
           for (const track of tracks) {
-            console.log("track.file", `/${track.file}`);
             try {
               const buffer: AudioBuffer | undefined = await decodeAudio(
                 track.file
@@ -100,8 +92,7 @@ export const machine = createMachine(
           }
           return audioBuffers;
         }
-        console.log("input", input.tracks);
-        createAudioBuffers(input.tracks);
+        createAudioBuffers(input?.tracks);
       }),
     },
     guards: {},
