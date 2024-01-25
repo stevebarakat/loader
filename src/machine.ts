@@ -44,10 +44,7 @@ export const machine = createMachine(
       loading: {
         invoke: {
           src: "LOADER",
-          input: ({ context }) => {
-            console.log("context", context);
-            return context;
-          },
+          input: ({ context }) => context.sourceSong,
           onDone: {
             target: "idle",
             actions: ({ event }) => console.log("snapshot", event),
@@ -103,8 +100,8 @@ export const machine = createMachine(
           }
           return audioBuffers;
         }
-        console.log("input", input.sourceSong.tracks);
-        createAudioBuffers(input.sourceSong.tracks);
+        console.log("input", input.tracks);
+        createAudioBuffers(input.tracks);
       }),
     },
     guards: {},
