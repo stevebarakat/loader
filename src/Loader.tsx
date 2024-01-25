@@ -1,8 +1,10 @@
 import { MachineContext } from "./machine";
 
-function Initializer() {
+function Loader() {
   const { send } = MachineContext.useActorRef();
   const state = MachineContext.useSelector((state) => state);
+
+  console.log("state", state.value);
   return (
     <div>
       <h1>Loader</h1>
@@ -19,4 +21,4 @@ function Initializer() {
   );
 }
 
-export default Initializer;
+export default Loader;

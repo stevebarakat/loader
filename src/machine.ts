@@ -2,14 +2,12 @@ import { assign, createMachine, fromPromise } from "xstate";
 import { createActorContext } from "@xstate/react";
 
 type Context = {
-  audioContext: AudioContext | undefined;
   song: { url: string } | undefined;
 };
 
 export const machine = createMachine(
   {
     context: {
-      audioContext: undefined,
       song: { url: "" },
     },
     initial: "idle",
@@ -27,37 +25,50 @@ export const machine = createMachine(
       loading: {
         invoke: {
           src: "LOADER",
+          input: { url: "/dk/drums.ogg" },
           onDone: {
-            actions: ({ event }) => console.log("snapshot", event.output),
+            target: "idle",
+            actions: ({ event }) => console.log("snapshot", event),
           },
         },
       },
     },
     types: {
       context: {} as Context,
-      events: {} as { type: "LOAD.SONG"; url: string },
+      events: {} as {
+        type: "LOAD.SONG";
+        url: string;
+      },
     },
   },
   {
     actions: {
-      setAudioContext: assign(() => ({
-        audioContext: new AudioContext(),
-      })),
       setSong: assign(({ context, event }) => ({
-        ...context.song,
-        url: event.url,
+        song: {
+          ...context.song,
+          url: event.url,
+        },
       })),
     },
     actors: {
-      LOADER: fromPromise(async () => {
-        // Simulate network request
-        const promise = new Promise((resolve) =>
-          setTimeout(() => resolve({ url: "/dk/drums.ogg" }), 1000)
-        );
-        return promise.then((resolve) => {
-          console.log("resolve", resolve);
-          return resolve;
-        });
+      LOADER: fromPromise(async ({ input }) => {
+        const actx = new AudioContext();
+        const url = input?.url;
+        async function decodeAudio(url: string) {
+          try {
+            const response = await fetch(url);
+            return actx.decodeAudioData(await response.arrayBuffer());
+          } catch (err) {
+            if (err instanceof Error) {
+              console.error(`Error: ${err.message} the audio file at: ${url} `);
+            }
+          }
+        }
+        try {
+          return await decodeAudio(url);
+        } catch (error) {
+          console.error("error", error);
+        }
       }),
     },
     guards: {},
