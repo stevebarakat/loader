@@ -5,6 +5,8 @@ const SOURCE_SONG = californiaUberAlles;
 
 function Loader() {
   const { send } = MachineContext.useActorRef();
+  const state = MachineContext.useSelector((s) => s);
+  console.log("state", state.value);
 
   return (
     <div>

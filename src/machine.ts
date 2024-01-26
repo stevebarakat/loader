@@ -1,6 +1,5 @@
 import { assign, createMachine, fromPromise } from "xstate";
 import { createActorContext } from "@xstate/react";
-import { extractFileName, capitalizeFirstLetter } from "./utils";
 
 type SourceSong = {
   id: string;
@@ -22,12 +21,14 @@ type SourceTrack = {
 
 type Context = {
   sourceSong: SourceSong | undefined;
+  loaded: number;
 };
 
 export const machine = createMachine(
   {
     context: {
       sourceSong: undefined,
+      loaded: 0,
     },
     initial: "idle",
     states: {
@@ -45,10 +46,9 @@ export const machine = createMachine(
         invoke: {
           src: "LOADER",
           input: ({ context }) => context.sourceSong,
-          onDone: {
-            target: "idle",
-            actions: ({ event }) => console.log("snapshot", event),
-          },
+        },
+        onDone: {
+          target: "idle",
         },
       },
     },
@@ -71,6 +71,7 @@ export const machine = createMachine(
       LOADER: fromPromise(async ({ input }) => {
         const actx = new AudioContext();
         let audioBuffers: (AudioBuffer | undefined)[] = [];
+        let loaded: number = 0;
 
         async function decodeAudio(path: string) {
           console.log("path", path);
@@ -89,9 +90,13 @@ export const machine = createMachine(
                 console.error(
                   `Error: ${err.message} for file at: ${track.path} `
                 );
+            } finally {
+              const files = tracks.length * 0.01;
+              loaded = loaded + 1 / files;
+              console.log("loaded", loaded);
             }
           }
-          return audioBuffers;
+          return { audioBuffers, loaded };
         }
         createAudioBuffers(input?.tracks);
       }),
