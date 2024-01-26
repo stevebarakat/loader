@@ -1,5 +1,6 @@
 import { assign, createMachine, fromPromise } from "xstate";
 import { createActorContext } from "@xstate/react";
+import { extractFileName, capitalizeFirstLetter } from "./utils";
 
 type SourceSong = {
   id: string;
@@ -16,7 +17,7 @@ type SourceSong = {
 type SourceTrack = {
   id: string;
   name: string;
-  file: string;
+  path: string;
 };
 
 type Context = {
@@ -80,13 +81,13 @@ export const machine = createMachine(
           for (const track of tracks) {
             try {
               const buffer: AudioBuffer | undefined = await decodeAudio(
-                track.file
+                track.path
               );
               audioBuffers = [buffer, ...audioBuffers];
             } catch (err) {
               if (err instanceof Error)
                 console.error(
-                  `Error: ${err.message} for file at: ${track.file} `
+                  `Error: ${err.message} for file at: ${track.path} `
                 );
             }
           }

@@ -11,32 +11,32 @@ export const californiaUberAlles = {
     {
       id: crypto.randomUUID(),
       name: "Kick",
-      file: "01.kick.ogg",
+      path: "/01.kick.ogg",
     },
     {
       id: crypto.randomUUID(),
       name: "Drums",
-      file: "02.drums.ogg",
+      path: "/02.drums.ogg",
     },
     {
       id: crypto.randomUUID(),
       name: "Bass",
-      file: "03.bass.ogg",
+      path: "/03.bass.ogg",
     },
     {
       id: crypto.randomUUID(),
       name: "Gtr",
-      file: "04.gtr.ogg",
+      path: "/04.gtr.ogg",
     },
     {
       id: crypto.randomUUID(),
       name: "Vox",
-      file: "05.vox.ogg",
+      path: "/05.vox.ogg",
     },
     {
       id: crypto.randomUUID(),
       name: "Bax",
-      file: "06.bax.ogg",
+      path: "/06.bax.ogg",
     },
   ],
 };

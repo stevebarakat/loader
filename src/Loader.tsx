@@ -3,8 +3,6 @@ import { californiaUberAlles } from "./california-uber-alles";
 
 const SOURCE_SONG = californiaUberAlles;
 
-// console.log("SOURCE_SONG", SOURCE_SONG);
-
 function Loader() {
   const { send } = MachineContext.useActorRef();
 
