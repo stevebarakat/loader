@@ -75,7 +75,7 @@ export const machine = createMachine(
 
         async function decodeAudio(path: string) {
           console.log("path", path);
-          const response = await fetch(`california-uber-alles/${path}`);
+          const response = await fetch(path);
           return actx?.decodeAudioData(await response.arrayBuffer());
         }
         async function createAudioBuffers(tracks: SourceTrack[]) {
