@@ -1,6 +1,5 @@
 import { songs } from "./assets/songs";
 import { MachineContext } from "./machine";
-import { californiaUberAlles } from "./california-uber-alles";
 
 function Loader() {
   const { send } = MachineContext.useActorRef();
