@@ -3,8 +3,9 @@ import { MachineContext } from "./machine";
 
 function Loader() {
   const { send } = MachineContext.useActorRef();
-  const state = MachineContext.useSelector((s) => s);
-  console.log("state", state.value);
+  const slug = MachineContext.useSelector(
+    (state) => state.context.sourceSong?.slug
+  );
 
   function handleSongSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     const song = songs.find((song) => song.slug === event.target.value);
@@ -14,11 +15,7 @@ function Loader() {
   return (
     <div>
       <h1>Loader</h1>
-      <select
-        name="songs"
-        onChange={handleSongSelect}
-        value={state.context.sourceSong?.slug ?? ""}
-      >
+      <select name="songs" onChange={handleSongSelect} value={slug ?? ""}>
         <option value="" disabled>
           Choose a song :
         </option>

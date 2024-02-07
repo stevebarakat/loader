@@ -1,34 +1,18 @@
 import { assign, createMachine, fromPromise } from "xstate";
 import { createActorContext } from "@xstate/react";
+import { roxanne } from "./assets/songs/roxanne";
+const styles = "background: green; padding: 0.5rem;";
 
-type SourceSong = {
-  id: string;
-  slug: string;
-  title: string;
-  artist: string;
-  year: string;
-  studio: string;
-  location: string;
-  bpm: number;
-  tracks: SourceTrack[];
-};
-
-type SourceTrack = {
-  id: string;
-  name: string;
-  path: string;
-};
-
+type SourceSong = typeof roxanne;
+type SourceTrack = (typeof roxanne.tracks)[0];
 type Context = {
   sourceSong: SourceSong | undefined;
-  loaded: number;
 };
 
 export const machine = createMachine(
   {
     context: {
       sourceSong: undefined,
-      loaded: 0,
     },
     initial: "idle",
     states: {
@@ -46,9 +30,6 @@ export const machine = createMachine(
         invoke: {
           src: "LOADER",
           input: ({ context }) => context.sourceSong,
-          onSnapshot: {
-            actions: ({ event }) => console.log("snap", event.snapshot),
-          },
         },
         onDone: {
           target: "idle",
@@ -73,15 +54,15 @@ export const machine = createMachine(
     actors: {
       LOADER: fromPromise(async ({ input }) => {
         const actx = new AudioContext();
-        let audioBuffers: (AudioBuffer | undefined)[] = [];
-        let loaded: number = 0;
-
+        console.log(`%c${input.title} - loaded ${0}% `, styles);
         async function decodeAudio(path: string) {
-          console.log("path", path);
           const response = await fetch(path);
           return actx?.decodeAudioData(await response.arrayBuffer());
         }
         async function createAudioBuffers(tracks: SourceTrack[]) {
+          let audioBuffers: (AudioBuffer | undefined)[] = [];
+          let progress: number = 0;
+
           for (const track of tracks) {
             try {
               const buffer: AudioBuffer | undefined = await decodeAudio(
@@ -94,18 +75,19 @@ export const machine = createMachine(
                   `Error: ${err.message} for file at: ${track.path} `
                 );
             } finally {
-              const files = tracks.length * 0.01;
-              loaded = loaded + 1 / files;
-              console.log("loaded", loaded);
+              const files = tracks.length;
+              progress = Math.ceil((progress += 100 / files));
+
+              if (progress > 100) progress = 100;
+
+              console.log(`%c${track.name} - loaded ${progress}% `, styles);
             }
           }
-          return { audioBuffers, loaded };
+          return { audioBuffers };
         }
         createAudioBuffers(input?.tracks);
       }),
     },
-    guards: {},
-    delays: {},
   }
 );
 
