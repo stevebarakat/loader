@@ -46,6 +46,9 @@ export const machine = createMachine(
         invoke: {
           src: "LOADER",
           input: ({ context }) => context.sourceSong,
+          onSnapshot: {
+            actions: ({ event }) => console.log("snap", event.snapshot),
+          },
         },
         onDone: {
           target: "idle",
